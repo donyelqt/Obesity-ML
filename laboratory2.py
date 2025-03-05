@@ -43,13 +43,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 classification_type = "lightgbm"  # You can change this to "lightgbm" to use LGBMClassifier
 
 # Select and initialize the model
-if classification_type == "binary":
+if classification_type == "rfc":
     model = RandomForestClassifier(random_state=42)
-elif classification_type == "multiclass":
+elif classification_type == "svc":
     model = SVC(kernel='linear', random_state=42)
-elif classification_type == "multilabel":
+elif classification_type == "kneighbors":
     model = KNeighborsClassifier()
-elif classification_type == "ordinal":
+elif classification_type == "logistic":
     model = LogisticRegression(random_state=42)
 elif classification_type == "lightgbm":
     model = LGBMClassifier(random_state=42, n_estimators=100, learning_rate=0.1)
