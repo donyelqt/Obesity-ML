@@ -56,7 +56,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "lightgbm"  # Changed to test LightGBM
+classification_type = "lightgbm"  # Changed it with the model below
 
 # Select and initialize the model
 if classification_type == "rfc":
