@@ -56,7 +56,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "kneighbors"  # Changed it with the model to test below
+classification_type = "lightgbm"  # Changed it with the model to test below
 
 # Select and initialize the model
 if classification_type == "rfc":
@@ -86,7 +86,7 @@ elif classification_type == "logistic":
         'classifier__solver': ['liblinear']  # liblinear supports l1 and l2
     }
 elif classification_type == "lightgbm":
-    model = LGBMClassifier(random_state=42)
+    model = LGBMClassifier(random_state=42, verbose=-1)
     param_grid = {
         'classifier__n_estimators': [100, 200, 300, 400, 500],
     'classifier__max_depth': [3, 5, 7, 9, 11],
