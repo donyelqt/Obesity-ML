@@ -7,9 +7,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, confusion_matrix
+from lightgbm import LGBMClassifier  # Direct import as requested
 
 # Load dataset
-train_data = pd.read_csv('Obesity.csv')
+train_data = pd.read_csv('assets/Obesity.csv')
 
 # Display first few rows
 print(train_data.head())
@@ -17,7 +18,7 @@ print(train_data.head())
 # Check for missing values
 print(train_data.isnull().sum())
 
-# Remove duplicated
+# Remove duplicates
 train_data = train_data.drop_duplicates()
 
 # Encode categorical target column
@@ -39,18 +40,21 @@ y = train_data['NObeyesdad']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Choose classification type
-classification_type = "binary"
+classification_type = "lightgbm"  # You can change this to "lightgbm" to use LGBMClassifier
 
+# Select and initialize the model
 if classification_type == "binary":
-    model = RandomForestClassifier()
+    model = RandomForestClassifier(random_state=42)
 elif classification_type == "multiclass":
-    model = SVC(kernel='linear')
+    model = SVC(kernel='linear', random_state=42)
 elif classification_type == "multilabel":
     model = KNeighborsClassifier()
 elif classification_type == "ordinal":
-    model = LogisticRegression()
+    model = LogisticRegression(random_state=42)
+elif classification_type == "lightgbm":
+    model = LGBMClassifier(random_state=42, n_estimators=100, learning_rate=0.1)
 else:
-    raise ValueError("Invalid classification type. Choose from 'binary', 'multiclass', 'multilabel', or 'ordinal'.")
+    raise ValueError("Invalid classification type. Choose from 'binary', 'multiclass', 'multilabel', 'ordinal', or 'lightgbm'.")
 
 # Train the model
 model.fit(X_train, y_train)
