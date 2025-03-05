@@ -92,7 +92,8 @@ logistic_model = LogisticRegression()
 
 # Define the pipeline
 pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', lgbm_model), 
-                           ('classifier', svc_model), ''])
+                           ('classifier', svc_model), ('classifier', rfc_model), 
+                           ('classifier', knns_model), ('classifier', logistic_model)])
 
 # Define hyperparameters for randomized search
 param_grid = {
