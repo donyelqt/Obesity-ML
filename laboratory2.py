@@ -5,9 +5,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, confusion_matrix
-from lightgbm import LGBMClassifier  # Direct import as requested
+from lightgbm import LGBMClassifier
+from scipy import stats
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_val_score
 
 # Load dataset
 train_data = pd.read_csv('assets/Obesity.csv')
