@@ -88,11 +88,15 @@ elif classification_type == "logistic":
 elif classification_type == "lightgbm":
     model = LGBMClassifier(random_state=42)
     param_grid = {
-        'classifier__n_estimators': [100, 200, 300],
-        'classifier__max_depth': [3, 5, 7, -1],
-        'classifier__learning_rate': [0.01, 0.05, 0.1],
-        'classifier__subsample': [0.7, 0.9, 1.0],
-        'classifier__colsample_bytree': [0.7, 0.9, 1.0]
+        'classifier__n_estimators': [100, 200, 300, 400, 500],
+    'classifier__max_depth': [3, 5, 7, 9, 11],
+    'classifier__learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
+    'classifier__subsample': [0.5, 0.7, 0.9, 1.0],
+    'classifier__colsample_bytree': [0.5, 0.7, 0.9, 1.0],
+    'classifier__min_child_samples': [10, 20, 30, 40, 50],
+    'classifier__reg_alpha': [0.0, 0.1, 0.5, 1.0],
+    'classifier__reg_lambda': [0.0, 0.1, 0.5, 1.0],
+    'classifier__min_child_weight': [1e-3, 1e-2, 0.1, 1, 10]
     }
 else:
     raise ValueError("Invalid classification type. Choose from 'rfc', 'svc', 'kneighbors', 'logistic', or 'lightgbm'.")
@@ -101,7 +105,7 @@ else:
 pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
 
 # Perform randomized search cross-validation
-random_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, n_iter=20, cv=3, verbose=2, random_state=42, n_jobs=-1)
+random_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, n_iter=50, cv=3, verbose=2, random_state=42, n_jobs=-1)
 random_search.fit(X_train, y_train)
 
 # Get the best parameters and model
