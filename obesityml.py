@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
@@ -11,7 +11,6 @@ from scipy import stats
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
-from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_val_score
 import joblib
 
 # Load dataset
@@ -32,23 +31,14 @@ numerical_features = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', '
 
 # Handle outliers using Z-score
 z_scores = np.abs(stats.zscore(train_data[numerical_features]))
-outliers = (z_scores > 3).all(axis=1)
-train_data = train_data[~outliers]  # Remove rows with outliers
+outliers = (z_scores > 3).any(axis=1)  # Changed to .any() to remove rows with any outlier
+train_data = train_data[~outliers]
 
 # Encode target variable into numerical labels
 label_encoder = LabelEncoder()
 train_data['NObeyesdad'] = label_encoder.fit_transform(train_data['NObeyesdad'])
 
-# Encode categorical target column
-# if train_data['NObeyesdad'].dtype == 'object':
-   # le = LabelEncoder()
-    # train_data['NObeyesdad'] = le.fit_transform(train_data['NObeyesdad'])
-
-# Convert categorical features to numerical
-train_data = pd.get_dummies(train_data)
-
-# Ensure target column is present
-print("Columns in dataset:", train_data.columns)
+# Note: We’re using pd.get_dummies later, so preprocessing categorical features here isn’t needed yet
 
 # Split features and target variable
 X = train_data.drop(columns=['NObeyesdad'])
@@ -66,49 +56,52 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "rfc"  # You can change this to "lightgbm" to use LGBMClassifier
+classification_type = "lightgbm"  # Changed to test LightGBM
 
 # Select and initialize the model
 if classification_type == "rfc":
     model = RandomForestClassifier(random_state=42)
+    param_grid = {
+        'classifier__n_estimators': [100, 200, 300],
+        'classifier__max_depth': [3, 5, 7, None],
+        'classifier__min_samples_split': [2, 5, 10]
+    }
 elif classification_type == "svc":
-    model = SVC(kernel='linear', random_state=42)
+    model = SVC(random_state=42)
+    param_grid = {
+        'classifier__C': [0.1, 1, 10],
+        'classifier__kernel': ['linear', 'rbf']
+    }
 elif classification_type == "kneighbors":
     model = KNeighborsClassifier()
+    param_grid = {
+        'classifier__n_neighbors': [3, 5, 7],
+        'classifier__weights': ['uniform', 'distance']
+    }
 elif classification_type == "logistic":
-    model = LogisticRegression(random_state=42)
+    model = LogisticRegression(random_state=42, max_iter=1000)
+    param_grid = {
+        'classifier__C': [0.1, 1, 10],
+        'classifier__penalty': ['l1', 'l2'],
+        'classifier__solver': ['liblinear']  # liblinear supports l1 and l2
+    }
 elif classification_type == "lightgbm":
-    model = LGBMClassifier(random_state=42, n_estimators=100, learning_rate=0.1)
+    model = LGBMClassifier(random_state=42)
+    param_grid = {
+        'classifier__n_estimators': [100, 200, 300],
+        'classifier__max_depth': [3, 5, 7, -1],
+        'classifier__learning_rate': [0.01, 0.05, 0.1],
+        'classifier__subsample': [0.7, 0.9, 1.0],
+        'classifier__colsample_bytree': [0.7, 0.9, 1.0]
+    }
 else:
-    raise ValueError("Invalid classification type. Choose from 'binary', 'multiclass', 'multilabel', 'ordinal', or 'lightgbm'.")
+    raise ValueError("Invalid classification type. Choose from 'rfc', 'svc', 'kneighbors', 'logistic', or 'lightgbm'.")
 
-# Define the ml model
-lgbm_model = LGBMClassifier()
-svc_model = SVC()
-rfc_model = RandomForestClassifier()
-knns_model = KNeighborsClassifier()
-logistic_model = LogisticRegression()
-
-# Define the pipeline
-pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', lgbm_model), 
-                           ('classifier', svc_model), ('classifier', rfc_model), 
-                           ('classifier', knns_model), ('classifier', logistic_model)])
-
-# Define hyperparameters for randomized search
-param_grid = {
-    'classifier__n_estimators': [100, 200, 300, 400, 500],
-    'classifier__max_depth': [3, 5, 7, 9, 11],
-    'classifier__learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
-    'classifier__subsample': [0.5, 0.7, 0.9, 1.0],
-    'classifier__colsample_bytree': [0.5, 0.7, 0.9, 1.0],
-    'classifier__min_child_samples': [10, 20, 30, 40, 50],
-    'classifier__reg_alpha': [0.0, 0.1, 0.5, 1.0],
-    'classifier__reg_lambda': [0.0, 0.1, 0.5, 1.0],
-    'classifier__min_child_weight': [1e-3, 1e-2, 0.1, 1, 10]
-}
+# Define the pipeline with the selected model
+pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
 
 # Perform randomized search cross-validation
-random_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, n_iter=50, cv=3, verbose=2, random_state=42, n_jobs=-1)
+random_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, n_iter=20, cv=3, verbose=2, random_state=42, n_jobs=-1)
 random_search.fit(X_train, y_train)
 
 # Get the best parameters and model
@@ -131,18 +124,16 @@ test_data = pd.read_csv('assets/Obesity.csv')
 test_data = test_data.drop_duplicates()
 test_predictions = best_model.predict(test_data.drop(columns=['NObeyesdad']))
 
+# Note: Assuming test_data has no 'id' column initially; adjust if it does
 test_data['id'] = range(len(test_data))
-test_predictions = np.array(test_predictions).reshape(-1, 1)
+test_predictions = label_encoder.inverse_transform(test_predictions)  # Convert back to original labels
 
 # Create predicted dataframe
-predicted_df = pd.DataFrame({'id': test_data['id'],
-                              'NObeyesdad': label_encoder.inverse_transform(test_predictions)})
+predicted_df = pd.DataFrame({'id': test_data['id'], 'NObeyesdad': test_predictions})
 
 # Save predicted dataframe to CSV
 predicted_df.to_csv('predicted.csv', index=False)
 
 # Save the trained model and label encoder
-joblib.dump(best_model, 'trained_model')
-joblib.dump(label_encoder, 'label_encoder')
-
-
+joblib.dump(best_model, 'trained_model.pkl')
+joblib.dump(label_encoder, 'label_encoder.pkl')
