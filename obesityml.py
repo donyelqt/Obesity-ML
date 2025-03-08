@@ -86,7 +86,7 @@ elif classification_type == "logistic":
         'classifier__solver': ['liblinear']  # liblinear supports l1 and l2
     }
 elif classification_type == "lightgbm":
-    model = LGBMClassifier(random_state=42, verbose=-1)
+    model = LGBMClassifier(random_state=42, verbose=-1) # added verbose=-1 to supress warnings
     param_grid = {
         'classifier__n_estimators': [100, 200, 300, 400, 500],
     'classifier__max_depth': [3, 5, 7, 9, 11],
