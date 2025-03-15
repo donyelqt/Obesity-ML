@@ -1,14 +1,14 @@
 
 Model Performance Report
-Generated on: 2025-03-15 05:51:46
+Generated on: 2025-03-15 12:33:07
 Model: EXTRATREES
 
 1. Hyperparameter Tuning Results:
 - Baseline Accuracy (Default Parameters): 0.9208
 - Tuned Accuracy: 0.9725
 - Improvement: 0.0517
-- Baseline CV Mean Score: 0.8963 (ï¿½ 0.1242)
-- Tuned CV Mean Score: 0.9487 (ï¿½ 0.0737)
+- Baseline CV Mean Score: 0.8963 (± 0.1242)
+- Tuned CV Mean Score: 0.9487 (± 0.0737)
 - Best Parameters: classifier__n_estimators: 300, classifier__min_samples_split: 5, classifier__min_samples_leaf: 1, classifier__max_features: None, classifier__max_depth: None
 - Tuning Process: RandomizedSearchCV with 50 iterations and 3-fold CV was used to explore a wide parameter space efficiently. 
   The optimal settings balance model complexity and generalization, with parameters like learning rate and depth tuned to prevent overfitting.
@@ -16,9 +16,9 @@ Model: EXTRATREES
 2. Evaluation Metrics:
 - Accuracy: 0.9725
 - Mean Squared Error: 0.2746
-- Rï¿½ Score: 0.9255
+- R² Score: 0.9255
 - Cross-validation Scores: [0.80145278 0.97820823 0.98547215 0.98543689 0.99271845]
-- Mean CV Score: 0.9487 (ï¿½ 0.0737)
+- Mean CV Score: 0.9487 (± 0.0737)
 
 3. Classification Report:
                      precision    recall  f1-score   support
@@ -57,5 +57,5 @@ Overweight_Level_II       0.99      0.94      0.96        77
 5. Interpretations:
 - Accuracy improvement suggests tuning enhanced generalization.
 - Low CV score variance (0.0737) indicates robust performance across data splits.
-- MSE and Rï¿½ reflect prediction consistency, though more relevant for regression tasks.
+- MSE and R² reflect prediction consistency, though more relevant for regression tasks.
 - Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.

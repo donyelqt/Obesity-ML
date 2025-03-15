@@ -91,7 +91,7 @@ id,NObeyesdad
 89,Overweight_Level_II
 90,Obesity_Type_II
 91,Normal_Weight
-92,Overweight_Level_II
+92,Normal_Weight
 93,Normal_Weight
 94,Normal_Weight
 95,Normal_Weight
@@ -158,7 +158,7 @@ id,NObeyesdad
 156,Overweight_Level_I
 157,Overweight_Level_II
 158,Normal_Weight
-159,Overweight_Level_II
+159,Overweight_Level_I
 160,Normal_Weight
 161,Normal_Weight
 162,Overweight_Level_II
@@ -166,7 +166,7 @@ id,NObeyesdad
 164,Normal_Weight
 165,Overweight_Level_II
 166,Overweight_Level_I
-167,Overweight_Level_II
+167,Obesity_Type_I
 168,Overweight_Level_II
 169,Normal_Weight
 170,Normal_Weight
@@ -225,7 +225,7 @@ id,NObeyesdad
 223,Obesity_Type_II
 224,Overweight_Level_I
 225,Normal_Weight
-226,Normal_Weight
+226,Insufficient_Weight
 227,Overweight_Level_II
 228,Normal_Weight
 229,Normal_Weight

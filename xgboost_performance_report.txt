@@ -1,60 +1,60 @@
 
 Model Performance Report
-Generated on: 2025-03-15 05:18:59
+Generated on: 2025-03-15 12:10:51
 Model: XGBOOST
 
 1. Hyperparameter Tuning Results:
 - Baseline Accuracy (Default Parameters): 0.9758
-- Tuned Accuracy: 0.9725
-- Improvement: -0.0032
+- Tuned Accuracy: 0.9806
+- Improvement: 0.0048
 - Baseline CV Mean Score: 0.9540 (± 0.0654)
-- Tuned CV Mean Score: 0.9516 (± 0.0691)
-- Best Parameters: classifier__subsample: 0.9, classifier__n_estimators: 500, classifier__min_child_weight: 1, classifier__max_depth: 7, classifier__learning_rate: 0.3, classifier__gamma: 0.1, classifier__colsample_bytree: 0.7
+- Tuned CV Mean Score: 0.9550 (± 0.0635)
+- Best Parameters: classifier__subsample: 0.9, classifier__n_estimators: 120, classifier__min_child_weight: 2, classifier__max_depth: 6, classifier__learning_rate: 0.1, classifier__gamma: 0.05, classifier__colsample_bytree: 1.0
 - Tuning Process: RandomizedSearchCV with 50 iterations and 3-fold CV was used to explore a wide parameter space efficiently. 
   The optimal settings balance model complexity and generalization, with parameters like learning rate and depth tuned to prevent overfitting.
 
 2. Evaluation Metrics:
-- Accuracy: 0.9725
-- Mean Squared Error: 0.2359
-- R² Score: 0.9360
-- Cross-validation Scores: [0.81355932 0.99031477 0.98062954 0.98786408 0.98543689]
-- Mean CV Score: 0.9516 (± 0.0691)
+- Accuracy: 0.9806
+- Mean Squared Error: 0.1309
+- R² Score: 0.9645
+- Cross-validation Scores: [0.82808717 0.98305085 0.98789346 0.98786408 0.98786408]
+- Mean CV Score: 0.9550 (± 0.0635)
 
 3. Classification Report:
                      precision    recall  f1-score   support
 
-Insufficient_Weight       0.96      1.00      0.98        81
-      Normal_Weight       0.95      0.95      0.95        93
+Insufficient_Weight       0.99      0.99      0.99        81
+      Normal_Weight       0.96      0.98      0.97        93
      Obesity_Type_I       0.98      0.99      0.98        99
-    Obesity_Type_II       0.99      0.99      0.99        95
+    Obesity_Type_II       0.99      0.98      0.98        95
    Obesity_Type_III       1.00      1.00      1.00       101
- Overweight_Level_I       0.94      0.92      0.93        73
-Overweight_Level_II       0.97      0.95      0.96        77
+ Overweight_Level_I       0.96      0.96      0.96        73
+Overweight_Level_II       0.99      0.96      0.97        77
 
-           accuracy                           0.97       619
-          macro avg       0.97      0.97      0.97       619
-       weighted avg       0.97      0.97      0.97       619
+           accuracy                           0.98       619
+          macro avg       0.98      0.98      0.98       619
+       weighted avg       0.98      0.98      0.98       619
 
 
 4. Model Behavior Analysis:
 - Confusion Matrix Insights:
-- Insufficient_Weight: 3 false positives, 0 false negatives, indicating potential overlap with similar classes.
-- Normal_Weight: 5 false positives, 5 false negatives, indicating potential overlap with similar classes.
+- Insufficient_Weight: 1 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Normal_Weight: 4 false positives, 2 false negatives, indicating potential overlap with similar classes.
 - Obesity_Type_I: 2 false positives, 1 false negatives, indicating potential overlap with similar classes.
-- Obesity_Type_II: 1 false positives, 1 false negatives, indicating potential overlap with similar classes.
-- Overweight_Level_I: 4 false positives, 6 false negatives, indicating potential overlap with similar classes.
-- Overweight_Level_II: 2 false positives, 4 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_II: 1 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_I: 3 false positives, 3 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_II: 1 false positives, 3 false negatives, indicating potential overlap with similar classes.
 
 - Top 5 Important Features:
-- Gender_Female: 0.1088 (likely critical for obesity classification)
-- Gender_Male: 0.0794 (likely critical for obesity classification)
-- FCVC: 0.0663 (likely critical for obesity classification)
-- family_history_with_overweight_no: 0.0663 (likely critical for obesity classification)
-- CALC_Sometimes: 0.0631 (likely critical for obesity classification)
+- Gender_Female: 0.3464 (likely critical for obesity classification)
+- Weight: 0.1278 (likely critical for obesity classification)
+- CALC_no: 0.0628 (likely critical for obesity classification)
+- FAVC_no: 0.0595 (likely critical for obesity classification)
+- Height: 0.0498 (likely critical for obesity classification)
 - General Behavior: XGBOOST relies on feature preprocessing and may be sensitive to parameter settings.
 
 5. Interpretations:
 - Accuracy improvement suggests tuning enhanced generalization.
-- Low CV score variance (0.0691) indicates robust performance across data splits.
+- Low CV score variance (0.0635) indicates robust performance across data splits.
 - MSE and R² reflect prediction consistency, though more relevant for regression tasks.
 - Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.

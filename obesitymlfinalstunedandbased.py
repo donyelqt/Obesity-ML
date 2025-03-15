@@ -64,7 +64,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "lightgbm"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
+classification_type = "rfc"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
 
 # Select and initialize the model
 if classification_type == "rfc":
@@ -96,25 +96,25 @@ elif classification_type == "logistic":
 elif classification_type == "lightgbm":
     model = LGBMClassifier(random_state=42, verbose=-1)
     param_grid = {
-        'classifier__n_estimators': [100, 200, 300, 400],  # More reasonable range
-        'classifier__max_depth': [3, 5, 7, 10],  # Avoid too deep trees
-        'classifier__learning_rate': [0.01, 0.05, 0.1],  # Focus on smaller rates for better convergence
-        'classifier__subsample': [0.8, 0.9, 1.0],  # Higher values to use more data
-        'classifier__colsample_bytree': [0.8, 0.9, 1.0],  # Higher values for feature usage
-        'classifier__min_child_samples': [10, 20, 30],  # Reasonable range
-        'classifier__reg_alpha': [0.0, 0.1, 0.5],  # Light regularization
-        'classifier__reg_lambda': [0.0, 0.1, 0.5]  # Light regularization
+        'classifier__n_estimators': [100, 150, 200],  # More trees for capacity
+        'classifier__max_depth': [-1, 5, 7],  # Balanced depth options
+        'classifier__learning_rate': [0.03, 0.05, 0.1],  # Lower rates for better optimization
+        'classifier__subsample': [0.9, 1.0],  # Close to default
+        'classifier__colsample_bytree': [0.9, 1.0],  # Close to default
+        'classifier__min_child_samples': [15, 20, 25],  # Around default
+        'classifier__reg_alpha': [0.0, 0.01],  # Light regularization
+        'classifier__reg_lambda': [0.0, 0.01]  # Light regularization
     }
 elif classification_type == "xgboost":
     model = XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='mlogloss')
     param_grid = {
-        'classifier__n_estimators': [100, 200, 300, 400],  # More reasonable range
-        'classifier__max_depth': [3, 5, 7, 10],  # Avoid too deep trees
-        'classifier__learning_rate': [0.01, 0.05, 0.1],  # Focus on smaller rates
-        'classifier__subsample': [0.8, 0.9, 1.0],  # Higher values
-        'classifier__colsample_bytree': [0.8, 0.9, 1.0],  # Higher values
-        'classifier__min_child_weight': [1, 3, 5],  # Moderate regularization
-        'classifier__gamma': [0, 0.1, 0.2]  # Light regularization
+        'classifier__n_estimators': [80, 100, 120, 150],  # Center around default (100)
+        'classifier__max_depth': [3, 5, 6, 7],  # Include default (6) and nearby values
+        'classifier__learning_rate': [0.05, 0.1, 0.2, 0.3],  # Include default (0.3) and lower values
+        'classifier__subsample': [0.8, 0.9, 1.0],  # Default is 1.0, test slight subsampling
+        'classifier__colsample_bytree': [0.8, 0.9, 1.0],  # Default is 1.0, test slight subsampling
+        'classifier__min_child_weight': [1, 2, 3],  # Default is 1, light regularization
+        'classifier__gamma': [0.0, 0.01, 0.05]  # Default is 0, minimal regularization
     }
 elif classification_type == "catboost":
     model = CatBoostClassifier(random_state=42, verbose=0)
@@ -285,8 +285,8 @@ test_predictions = label_encoder.inverse_transform(test_predictions)
 predicted_df = pd.DataFrame({'id': test_data['id'], 'NObeyesdad': test_predictions})
 predicted_df.to_csv('predicted.csv', index=False)
 
-# Save the trained model and label encoder
-joblib.dump(best_model, 'trained_model.pkl')
+# Save the trained model and label encoder with model-specific naming
+joblib.dump(best_model, f'{classification_type}_trained_model.pkl')
 joblib.dump(label_encoder, 'label_encoder.pkl')
 
 print(f"Report saved as '{classification_type}_performance_report.txt'")
