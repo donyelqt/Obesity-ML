@@ -1,6 +1,6 @@
 
 Model Performance Report
-Generated on: 2025-03-15 17:00:16
+Generated on: 2025-03-15 18:36:29
 Model: LIGHTGBM
 
 1. Hyperparameter Tuning Results:

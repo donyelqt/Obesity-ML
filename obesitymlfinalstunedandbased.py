@@ -64,7 +64,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "rfc"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
+classification_type = "catboost"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
 
 # Select and initialize the model
 if classification_type == "rfc":
@@ -186,7 +186,7 @@ if hasattr(best_model.named_steps['classifier'], 'feature_importances_'):
         f"- {feat}: {imp:.4f} (likely critical for obesity classification)" 
         for feat, imp in top_features.items()
     )
-
+    
 # Generate detailed report
 report = f"""
 Model Performance Report
