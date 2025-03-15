@@ -1,0 +1,61 @@
+
+Model Performance Report
+Generated on: 2025-03-14 23:05:08
+Model: CATBOOST
+
+1. Hyperparameter Tuning Results:
+- Baseline Accuracy (Default Parameters): 0.9661
+- Tuned Accuracy: 0.9612
+- Improvement: -0.0048
+- Baseline CV Mean Score: 0.9583 (± 0.0567)
+- Tuned CV Mean Score: 0.9574 (± 0.0575)
+- Best Parameters: classifier__learning_rate: 0.3, classifier__l2_leaf_reg: 3, classifier__iterations: 500, classifier__depth: 6, classifier__border_count: 128, classifier__bagging_temperature: 1
+- Tuning Process: RandomizedSearchCV with 50 iterations and 3-fold CV was used to explore a wide parameter space efficiently. 
+  The optimal settings balance model complexity and generalization, with parameters like learning rate and depth tuned to prevent overfitting.
+
+2. Evaluation Metrics:
+- Accuracy: 0.9612
+- Mean Squared Error: 0.3683
+- R² Score: 0.9001
+- Cross-validation Scores: [0.84261501 0.99273608 0.98305085 0.98543689 0.98300971]
+- Mean CV Score: 0.9574 (± 0.0575)
+
+3. Classification Report:
+                     precision    recall  f1-score   support
+
+Insufficient_Weight       0.98      0.99      0.98        81
+      Normal_Weight       0.93      0.92      0.93        93
+     Obesity_Type_I       0.97      0.98      0.97        99
+    Obesity_Type_II       0.99      0.98      0.98        95
+   Obesity_Type_III       0.99      1.00      1.00       101
+ Overweight_Level_I       0.87      0.95      0.91        73
+Overweight_Level_II       0.99      0.90      0.94        77
+
+           accuracy                           0.96       619
+          macro avg       0.96      0.96      0.96       619
+       weighted avg       0.96      0.96      0.96       619
+
+
+4. Model Behavior Analysis:
+- Confusion Matrix Insights:
+- Insufficient_Weight: 2 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Normal_Weight: 6 false positives, 7 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_I: 3 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_II: 1 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_III: 1 false positives, 0 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_I: 10 false positives, 4 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_II: 1 false positives, 8 false negatives, indicating potential overlap with similar classes.
+
+- Top 5 Important Features:
+- Weight: 45.5083 (likely critical for obesity classification)
+- Height: 13.3190 (likely critical for obesity classification)
+- Gender_Male: 9.6540 (likely critical for obesity classification)
+- Age: 4.6392 (likely critical for obesity classification)
+- CH2O: 4.3444 (likely critical for obesity classification)
+- General Behavior: CATBOOST handles categorical features natively, potentially improving performance over one-hot encoded models
+
+5. Interpretations:
+- Accuracy improvement suggests tuning enhanced generalization.
+- Low CV score variance (0.0575) indicates robust performance across data splits.
+- MSE and R² reflect prediction consistency, though more relevant for regression tasks.
+- Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.

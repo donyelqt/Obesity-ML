@@ -1,0 +1,61 @@
+
+Model Performance Report
+Generated on: 2025-03-15 05:17:43
+Model: RFC
+
+1. Hyperparameter Tuning Results:
+- Baseline Accuracy (Default Parameters): 0.9418
+- Tuned Accuracy: 0.9515
+- Improvement: 0.0097
+- Baseline CV Mean Score: 0.9239 (± 0.1014)
+- Tuned CV Mean Score: 0.9244 (± 0.1076)
+- Best Parameters: classifier__n_estimators: 200, classifier__min_samples_split: 2, classifier__max_depth: None
+- Tuning Process: RandomizedSearchCV with 50 iterations and 3-fold CV was used to explore a wide parameter space efficiently. 
+  The optimal settings balance model complexity and generalization, with parameters like learning rate and depth tuned to prevent overfitting.
+
+2. Evaluation Metrics:
+- Accuracy: 0.9515
+- Mean Squared Error: 0.5089
+- R² Score: 0.8620
+- Cross-validation Scores: [0.7094431  0.97820823 0.98062954 0.97087379 0.98300971]
+- Mean CV Score: 0.9244 (± 0.1076)
+
+3. Classification Report:
+                     precision    recall  f1-score   support
+
+Insufficient_Weight       0.96      0.98      0.97        81
+      Normal_Weight       0.85      0.92      0.89        93
+     Obesity_Type_I       0.99      0.97      0.98        99
+    Obesity_Type_II       1.00      0.98      0.99        95
+   Obesity_Type_III       0.99      1.00      1.00       101
+ Overweight_Level_I       0.90      0.89      0.90        73
+Overweight_Level_II       0.96      0.90      0.93        77
+
+           accuracy                           0.95       619
+          macro avg       0.95      0.95      0.95       619
+       weighted avg       0.95      0.95      0.95       619
+
+
+4. Model Behavior Analysis:
+- Confusion Matrix Insights:
+- Insufficient_Weight: 3 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Normal_Weight: 15 false positives, 7 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_I: 1 false positives, 3 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_II: 0 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_III: 1 false positives, 0 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_I: 7 false positives, 8 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_II: 3 false positives, 8 false negatives, indicating potential overlap with similar classes.
+
+- Top 5 Important Features:
+- Weight: 0.2911 (likely critical for obesity classification)
+- Age: 0.0966 (likely critical for obesity classification)
+- Height: 0.0798 (likely critical for obesity classification)
+- NCP: 0.0581 (likely critical for obesity classification)
+- FAF: 0.0488 (likely critical for obesity classification)
+- General Behavior: RFC relies on feature preprocessing and may be sensitive to parameter settings.
+
+5. Interpretations:
+- Accuracy improvement suggests tuning enhanced generalization.
+- Low CV score variance (0.1076) indicates robust performance across data splits.
+- MSE and R² reflect prediction consistency, though more relevant for regression tasks.
+- Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.

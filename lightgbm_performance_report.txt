@@ -1,0 +1,60 @@
+
+Model Performance Report
+Generated on: 2025-03-14 22:44:04
+Model: LIGHTGBM
+
+1. Hyperparameter Tuning Results:
+- Baseline Accuracy (Default Parameters): 0.9742
+- Tuned Accuracy: 0.9725
+- Improvement: -0.0016
+- Baseline CV Mean Score: 0.9491 (± 0.0813)
+- Tuned CV Mean Score: 0.9574 (± 0.0635)
+- Best Parameters: classifier__subsample: 0.7, classifier__reg_lambda: 0.0, classifier__reg_alpha: 0.0, classifier__n_estimators: 100, classifier__min_child_weight: 0.001, classifier__min_child_samples: 30, classifier__max_depth: 9, classifier__learning_rate: 0.3, classifier__colsample_bytree: 1.0
+- Tuning Process: RandomizedSearchCV with 50 iterations and 3-fold CV was used to explore a wide parameter space efficiently. 
+  The optimal settings balance model complexity and generalization, with parameters like learning rate and depth tuned to prevent overfitting.
+
+2. Evaluation Metrics:
+- Accuracy: 0.9725
+- Mean Squared Error: 0.2003
+- R² Score: 0.9457
+- Cross-validation Scores: [0.83050847 0.98547215 0.99273608 0.99271845 0.98543689]
+- Mean CV Score: 0.9574 (± 0.0635)
+
+3. Classification Report:
+                     precision    recall  f1-score   support
+
+Insufficient_Weight       0.99      0.99      0.99        81
+      Normal_Weight       0.93      0.99      0.96        93
+     Obesity_Type_I       0.99      0.98      0.98        99
+    Obesity_Type_II       0.99      0.99      0.99        95
+   Obesity_Type_III       1.00      1.00      1.00       101
+ Overweight_Level_I       0.93      0.90      0.92        73
+Overweight_Level_II       0.97      0.94      0.95        77
+
+           accuracy                           0.97       619
+          macro avg       0.97      0.97      0.97       619
+       weighted avg       0.97      0.97      0.97       619
+
+
+4. Model Behavior Analysis:
+- Confusion Matrix Insights:
+- Insufficient_Weight: 1 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Normal_Weight: 7 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_I: 1 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_II: 1 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_I: 5 false positives, 7 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_II: 2 false positives, 5 false negatives, indicating potential overlap with similar classes.
+
+- Top 5 Important Features:
+- Weight: 2129.0000 (likely critical for obesity classification)
+- Height: 1425.0000 (likely critical for obesity classification)
+- Age: 1011.0000 (likely critical for obesity classification)
+- FAF: 618.0000 (likely critical for obesity classification)
+- TUE: 526.0000 (likely critical for obesity classification)
+- General Behavior: LIGHTGBM relies on feature preprocessing and may be sensitive to parameter settings.
+
+5. Interpretations:
+- Accuracy improvement suggests tuning enhanced generalization.
+- Low CV score variance (0.0635) indicates robust performance across data splits.
+- MSE and R² reflect prediction consistency, though more relevant for regression tasks.
+- Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.
