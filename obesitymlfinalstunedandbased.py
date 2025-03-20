@@ -17,6 +17,9 @@ import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
+import shap
+from sklearn.metrics import roc_curve, auc, precision_recall_curve
+from sklearn.preprocessing import label_binarize
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -64,7 +67,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "catboost"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
+classification_type = "lightgbm"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
 
 # Select and initialize the model
 if classification_type == "rfc":
@@ -268,6 +271,113 @@ if hasattr(best_model.named_steps['classifier'], 'feature_importances_'):
 plt.tight_layout()
 plt.savefig(f'{classification_type}_performance_visualizations.png')
 plt.close()
+
+# ADDITIONAL: Visualizations
+print(f"Generating visualizations for {classification_type.upper()} model...")
+
+# 1. EDA Visuals (Before Preprocessing, so place this earlier if desired)
+plt.figure(figsize=(8, 6))
+sns.countplot(x='NObeyesdad', data=train_data)
+plt.title('Distribution of Obesity Levels')
+plt.xlabel('Obesity Level')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.savefig('target_distribution.png')
+plt.close()
+
+plt.figure(figsize=(15, 10))
+for i, feature in enumerate(numerical_features, 1):
+    plt.subplot(3, 3, i)
+    sns.histplot(train_data[feature], kde=True)
+    plt.title(f'Distribution of {feature}')
+plt.tight_layout()
+plt.savefig('feature_distributions.png')
+plt.close()
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(train_data[numerical_features].corr(), annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+plt.title('Correlation Heatmap of Numerical Features')
+plt.savefig('correlation_heatmap.png')
+plt.close()
+
+# 2. Model-Specific Visualizations
+plt.figure(figsize=(15, 10))
+
+# Confusion Matrix Heatmap
+plt.subplot(2, 2, 1)
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
+            xticklabels=label_encoder.classes_,
+            yticklabels=label_encoder.classes_)
+plt.title(f'Confusion Matrix - {classification_type.upper()}')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.xticks(rotation=45)
+plt.yticks(rotation=0)
+
+# Cross-validation Scores Comparison
+plt.subplot(2, 2, 2)
+plt.plot(range(1, 6), baseline_cv_scores, label='Baseline', marker='o')
+plt.plot(range(1, 6), cv_scores, label='Tuned', marker='o')
+plt.title(f'Cross-Validation Scores: Baseline vs Tuned - {classification_type.upper()}')
+plt.xlabel('Fold')
+plt.ylabel('Accuracy')
+plt.legend()
+
+# Feature Importance (if applicable)
+if hasattr(best_model.named_steps['classifier'], 'feature_importances_'):
+    plt.subplot(2, 2, 3)
+    feature_imp = pd.Series(importances, index=feature_names).sort_values(ascending=False)[:10]
+    feature_imp.plot(kind='bar')
+    plt.title(f'Top 10 Feature Importances - {classification_type.upper()}')
+    plt.xlabel('Features')
+    plt.ylabel('Importance')
+    plt.xticks(rotation=45)
+
+plt.tight_layout()
+plt.savefig(f'{classification_type}_performance_visualizations.png')
+plt.close()
+
+# 3. Best Model Insights
+# SHAP Summary Plot (for tree-based models)
+if classification_type in ['rfc', 'lightgbm', 'xgboost', 'catboost', 'extratrees', 'gradientboost']:
+    explainer = shap.TreeExplainer(best_model.named_steps['classifier'])
+    transformed_X = best_model.named_steps['preprocessor'].transform(X_test)
+    shap_values = explainer.shap_values(transformed_X)
+    plt.figure(figsize=(10, 6))
+    shap.summary_plot(shap_values, transformed_X, feature_names=feature_names, show=False)
+    plt.title(f'SHAP Summary Plot - {classification_type.upper()}')
+    plt.savefig(f'{classification_type}_shap_summary.png')
+    plt.close()
+
+# ROC Curve (Multi-Class)
+y_test_bin = label_binarize(y_test, classes=range(len(label_encoder.classes_)))
+y_prob = best_model.predict_proba(X_test)
+plt.figure(figsize=(10, 6))
+for i in range(len(label_encoder.classes_)):
+    fpr, tpr, _ = roc_curve(y_test_bin[:, i], y_prob[:, i])
+    roc_auc = auc(fpr, tpr)
+    plt.plot(fpr, tpr, label=f'{label_encoder.classes_[i]} (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.title(f'ROC Curve (One-vs-Rest) - {classification_type.upper()}')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.legend()
+plt.savefig(f'{classification_type}_roc_curve.png')
+plt.close()
+
+# Precision-Recall Curve
+plt.figure(figsize=(10, 6))
+for i in range(len(label_encoder.classes_)):
+    precision, recall, _ = precision_recall_curve(y_test_bin[:, i], y_prob[:, i])
+    plt.plot(recall, precision, label=f'{label_encoder.classes_[i]}')
+plt.title(f'Precision-Recall Curve - {classification_type.upper()}')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.legend()
+plt.savefig(f'{classification_type}_precision_recall_curve.png')
+plt.close()
+
+print(f"Visualizations saved with prefix '{classification_type}_' (e.g., '{classification_type}_performance_visualizations.png')")
 
 # Train the best model on the entire dataset
 best_model.fit(X, y)
