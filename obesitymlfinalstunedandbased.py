@@ -243,7 +243,7 @@ plt.subplot(2, 2, 1)
 sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
             xticklabels=label_encoder.classes_,
             yticklabels=label_encoder.classes_)
-plt.title('Confusion Matrix')
+plt.title(f'Confusion Matrix - {classification_type.upper()}')
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.xticks(rotation=45)
@@ -253,7 +253,7 @@ plt.yticks(rotation=0)
 plt.subplot(2, 2, 2)
 plt.plot(range(1, 6), baseline_cv_scores, label='Baseline', marker='o')
 plt.plot(range(1, 6), cv_scores, label='Tuned', marker='o')
-plt.title('Cross-Validation Scores: Baseline vs Tuned')
+plt.title(f'Cross-Validation Scores: Baseline vs Tuned - {classification_type.upper()}')
 plt.xlabel('Fold')
 plt.ylabel('Accuracy')
 plt.legend()
@@ -276,6 +276,7 @@ plt.close()
 print(f"Generating visualizations for {classification_type.upper()} model...")
 
 # 1. EDA Visuals (Before Preprocessing, so place this earlier if desired)
+# Histogram of target
 plt.figure(figsize=(8, 6))
 sns.countplot(x='NObeyesdad', data=train_data)
 plt.title('Distribution of Obesity Levels')
@@ -285,6 +286,7 @@ plt.xticks(rotation=45)
 plt.savefig('target_distribution.png')
 plt.close()
 
+# Histograms for numerical feature distribution
 plt.figure(figsize=(15, 10))
 for i, feature in enumerate(numerical_features, 1):
     plt.subplot(3, 3, i)
@@ -292,6 +294,26 @@ for i, feature in enumerate(numerical_features, 1):
     plt.title(f'Distribution of {feature}')
 plt.tight_layout()
 plt.savefig('feature_distributions.png')
+plt.close()
+
+# Add Box Plots
+plt.figure(figsize=(15, 10))
+for i, feature in enumerate(numerical_features, 1):
+    plt.subplot(3, 3, i)
+    sns.boxplot(x='NObeyesdad', y=feature, data=train_data)
+    plt.title(f'{feature} by Obesity Level')
+    plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig('feature_boxplots.png')
+plt.close()
+
+# Add Scatter Plot (example: Weight vs. Height)
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='Weight', y='Height', hue='NObeyesdad', data=train_data)
+plt.title('Weight vs. Height by Obesity Level')
+plt.xlabel('Weight')
+plt.ylabel('Height')
+plt.savefig('weight_vs_height_scatter.png')
 plt.close()
 
 plt.figure(figsize=(10, 8))
@@ -378,6 +400,28 @@ plt.savefig(f'{classification_type}_precision_recall_curve.png')
 plt.close()
 
 print(f"Visualizations saved with prefix '{classification_type}_' (e.g., '{classification_type}_performance_visualizations.png')")
+
+# 1.) Datasets Trends of target variable
+plt.figure(figsize=(15, 10))
+for i, feature in enumerate(numerical_features, 1):
+    plt.subplot(3, 3, i)
+    sns.boxplot(x='NObeyesdad', y=feature, data=train_data)
+    plt.title(f'{feature} by Obesity Level')
+    plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig(f'{classification_type}_feature_target_boxplots.png')
+plt.close()
+
+# 2.)
+plt.figure(figsize=(15, 10))
+for i, feature in enumerate(categorical_features, 1):
+    plt.subplot(3, 3, i)
+    sns.countplot(x=feature, hue='NObeyesdad', data=train_data)
+    plt.title(f'{feature} by Obesity Level')
+    plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig(f'{classification_type}_categorical_feature_target.png')
+plt.close()
 
 # Train the best model on the entire dataset
 best_model.fit(X, y)
