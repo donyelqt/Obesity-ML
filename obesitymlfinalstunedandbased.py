@@ -42,7 +42,7 @@ train_data = train_data.drop_duplicates()
 categorical_features = ['Gender', 'family_history_with_overweight', 'FAVC', 'CAEC', 'SMOKE', 'SCC', 'CALC', 'MTRANS']
 numerical_features = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', 'TUE']
 
-# Handle outliers using Z-score
+# Handle outliers and remove using Z-score
 z_scores = np.abs(stats.zscore(train_data[numerical_features]))
 outliers = (z_scores > 3).any(axis=1)
 train_data = train_data[~outliers]
@@ -258,12 +258,12 @@ plt.xlabel('Fold')
 plt.ylabel('Accuracy')
 plt.legend()
 
-# 3. Feature Importance (if applicable)
+# 3. Feature Importance
 if hasattr(best_model.named_steps['classifier'], 'feature_importances_'):
     plt.subplot(2, 2, 3)
     feature_imp = pd.Series(importances, index=feature_names).sort_values(ascending=False)[:10]
     feature_imp.plot(kind='bar')
-    plt.title('Top 10 Feature Importances')
+    plt.title(f'Top 10 Feature Importances -{classification_type.upper()}')
     plt.xlabel('Features')
     plt.ylabel('Importance')
     plt.xticks(rotation=45)
