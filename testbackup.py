@@ -25,41 +25,55 @@ from sklearn.preprocessing import label_binarize
 np.random.seed(42)
 
 # Load dataset
-train_data = pd.read_csv('assets/Obesity.csv')
+data = pd.read_csv('assets/Obesity.csv')
+
+# Split into train and test sets initially
+train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
 # Display first few rows
-print("Dataset Preview:")
+print("Train Dataset Preview:")
 print(train_data.head())
+print("\nTest Dataset Preview:")
+print(test_data.head())
 
 # Check for missing values
-print("\nMissing Values:")
+print("\nTrain Missing Values:")
 print(train_data.isnull().sum())
+print("\nTest Missing Values:")
+print(test_data.isnull().sum())
 
 # Remove duplicates
 train_data = train_data.drop_duplicates()
+test_data = test_data.drop_duplicates()
 
 # Define categorical and numerical features
 categorical_features = ['Gender', 'family_history_with_overweight', 'FAVC', 'CAEC', 'SMOKE', 'SCC', 'CALC', 'MTRANS']
 numerical_features = ['Age', 'Height', 'Weight', 'FCVC', 'NCP', 'CH2O', 'FAF', 'TUE']
 
-# Handle outliers and remove using Z-score
+# Handle outliers and remove using Z-score for both train and test
 z_scores_train = np.abs(stats.zscore(train_data[numerical_features]))
 outliers_train = (z_scores_train > 3).any(axis=1)
 train_data = train_data[~outliers_train]
 
-# Encode target variable into numerical labels
+z_scores_test = np.abs(stats.zscore(test_data[numerical_features]))
+outliers_test = (z_scores_test > 3).any(axis=1)
+test_data = test_data[~outliers_test]
+
+# Encode target variable into numerical labels for train_data
 label_encoder = LabelEncoder()
 train_data['NObeyesdad'] = label_encoder.fit_transform(train_data['NObeyesdad'])
 
-# Save cleaned train data after preprocessing
+# Save cleaned datasets after preprocessing
 train_data.to_csv('cleaned_train_data.csv', index=False)
+test_data.to_csv('cleaned_test_data.csv', index=False)
 print("Cleaned train dataset saved as 'cleaned_train_data.csv'")
+print("Cleaned test dataset saved as 'cleaned_test_data.csv'")
 
 # Split features and target variable
 X = train_data.drop(columns=['NObeyesdad'])
 y = train_data['NObeyesdad']
 
-# Train-test split within train_data
+# Train-test split for evaluation
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Define data preprocessing steps
@@ -162,7 +176,7 @@ random_search.fit(X_train, y_train)
 best_params = random_search.best_params_
 best_model = random_search.best_estimator_
 
-# Predictions and metrics on X_test
+# Predictions and metrics
 y_pred = best_model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 conf_matrix = confusion_matrix(y_test, y_pred)
@@ -416,16 +430,16 @@ print(f"Visualizations saved with prefix '{classification_type}_' (e.g., '{class
 # Train the best model on the entire dataset
 best_model.fit(X, y)
 
-# Use X_test for predictions (part of train_data)
-test_predictions = best_model.predict(X_test)
+# Use the preprocessed test data for predictions
+test_data = pd.read_csv('cleaned_test_data.csv')
+test_predictions = best_model.predict(test_data.drop(columns=['NObeyesdad']))
 
-# Create a DataFrame with IDs and predictions
-test_data_with_predictions = X_test.copy()
-test_data_with_predictions['id'] = range(len(test_data_with_predictions))
-test_data_with_predictions['NObeyesdad'] = label_encoder.inverse_transform(test_predictions)
+# Add IDs and decode predictions
+test_data['id'] = range(len(test_data))
+test_predictions = label_encoder.inverse_transform(test_predictions)
 
-# Save predicted dataframe
-predicted_df = test_data_with_predictions[['id', 'NObeyesdad']]
+# Create and save predicted dataframe
+predicted_df = pd.DataFrame({'id': test_data['id'], 'NObeyesdad': test_predictions})
 predicted_df.to_csv('predicted.csv', index=False)
 
 # Save the trained model and label encoder
