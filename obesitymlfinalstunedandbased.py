@@ -276,7 +276,7 @@ plt.close()
 print(f"Generating visualizations for {classification_type.upper()} model...")
 
 # 1. EDA Visuals (Before Preprocessing, so place this earlier if desired)
-# Histogram of target
+# Histogram of target variable
 plt.figure(figsize=(8, 6))
 sns.countplot(x='NObeyesdad', data=train_data)
 plt.title('Distribution of Obesity Levels')
@@ -296,7 +296,7 @@ plt.tight_layout()
 plt.savefig('feature_distributions.png')
 plt.close()
 
-# Add Box Plots
+# Add Box Plots of target variable
 plt.figure(figsize=(15, 10))
 for i, feature in enumerate(numerical_features, 1):
     plt.subplot(3, 3, i)
@@ -306,6 +306,15 @@ for i, feature in enumerate(numerical_features, 1):
 plt.tight_layout()
 plt.savefig('feature_boxplots.png')
 plt.close()
+
+# Boxplot of Outliers
+plt.figure(figsize=(12, 6))
+for i, feature in enumerate(numerical_features, 1):
+    plt.subplot(2, 4, i)
+    sns.boxplot(x=train_data[feature])
+    plt.title(f'Boxplot of {feature}')
+plt.tight_layout()
+plt.show()
 
 # Add Scatter Plot (example: Weight vs. Height)
 plt.figure(figsize=(10, 6))
