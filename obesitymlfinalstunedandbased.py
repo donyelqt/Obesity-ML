@@ -67,7 +67,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "lightgbm"  # Options: 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
+classification_type = "lightgbm"  # Options: 'rfc', 'lightgbm', 'xgboost', 'catboost', 'extratrees'
 
 # Select and initialize the model
 if classification_type == "rfc":
