@@ -312,7 +312,7 @@ plt.figure(figsize=(12, 6))
 for i, feature in enumerate(numerical_features, 1):
     plt.subplot(2, 4, i)
     sns.boxplot(x=train_data[feature])
-    plt.title(f'Boxplot of {feature}')
+    plt.title(f'Boxplot Outliers of {feature}')
 plt.tight_layout()
 plt.show()
 
@@ -326,6 +326,7 @@ plt.ylabel('Height')
 plt.savefig('weight_vs_height_scatter.png')
 plt.close()
 
+# Correlation Heatmap of Numerical Features Relationships
 plt.figure(figsize=(10, 8))
 sns.heatmap(train_data[numerical_features].corr(), annot=True, cmap='coolwarm', vmin=-1, vmax=1)
 plt.title('Correlation Heatmap of Numerical Features')
@@ -419,7 +420,7 @@ for i, feature in enumerate(numerical_features, 1):
     plt.title(f'{feature} by Obesity Level')
     plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig(f'{classification_type}_feature_target_boxplots.png')
+plt.savefig('feature_target_boxplots.png')
 plt.close()
 
 # 2.)
@@ -430,7 +431,7 @@ for i, feature in enumerate(categorical_features, 1):
     plt.title(f'{feature} by Obesity Level')
     plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig(f'{classification_type}_categorical_feature_target.png')
+plt.savefig('categorical_feature_target.png')
 plt.close()
 
 # Train the best model on the entire dataset
