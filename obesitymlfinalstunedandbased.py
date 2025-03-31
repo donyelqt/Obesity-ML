@@ -316,7 +316,8 @@ for i, feature in enumerate(numerical_features, 1):
 plt.tight_layout()
 plt.show()
 
-# Add Scatter Plot (example: Weight vs. Height)
+# Scatter plots for selected numerical feature pairs vs. target
+# Example: Weight vs. Height colored by obesity level
 plt.figure(figsize=(10, 6))
 sns.scatterplot(x='Weight', y='Height', hue='NObeyesdad', data=train_data)
 plt.title('Weight vs. Height by Obesity Level')
