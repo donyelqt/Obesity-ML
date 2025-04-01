@@ -1,0 +1,40 @@
+
+
+ROC AUC Scores (One-vs-Rest):
+Insufficient_Weight: 1.00
+Normal_Weight: 1.00
+Obesity_Type_I: 1.00
+Obesity_Type_II: 1.00
+Obesity_Type_III: 1.00
+Overweight_Level_I: 1.00
+Overweight_Level_II: 1.00
+
+
+ROC AUC Scores (One-vs-Rest):
+Insufficient_Weight: 1.00
+Normal_Weight: 1.00
+Obesity_Type_I: 1.00
+Obesity_Type_II: 1.00
+Obesity_Type_III: 1.00
+Overweight_Level_I: 1.00
+Overweight_Level_II: 1.00
+
+
+ROC AUC Scores (One-vs-Rest):
+Insufficient_Weight: 1.00
+Normal_Weight: 1.00
+Obesity_Type_I: 1.00
+Obesity_Type_II: 1.00
+Obesity_Type_III: 1.00
+Overweight_Level_I: 1.00
+Overweight_Level_II: 1.00
+
+
+ROC AUC Scores (One-vs-Rest):
+Insufficient_Weight: 1.00
+Normal_Weight: 1.00
+Obesity_Type_I: 1.00
+Obesity_Type_II: 1.00
+Obesity_Type_III: 1.00
+Overweight_Level_I: 1.00
+Overweight_Level_II: 1.00
