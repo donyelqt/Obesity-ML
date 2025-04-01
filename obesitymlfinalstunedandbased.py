@@ -20,6 +20,9 @@ from datetime import datetime
 import shap
 from sklearn.metrics import roc_curve, auc, precision_recall_curve
 from sklearn.preprocessing import label_binarize
+from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import average_precision_score
+import numpy as np
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -51,6 +54,9 @@ train_data = train_data[~outliers_train]
 label_encoder = LabelEncoder()
 train_data['NObeyesdad'] = label_encoder.fit_transform(train_data['NObeyesdad'])
 
+# Add decoded column for visualizations
+train_data['NObeyesdad_decoded'] = label_encoder.inverse_transform(train_data['NObeyesdad'])
+
 # Save cleaned train data after preprocessing
 train_data.to_csv('cleaned_train_data.csv', index=False)
 print("Cleaned train dataset saved as 'cleaned_train_data.csv'")
@@ -71,7 +77,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "lightgbm"
+classification_type = "catboost"
 
 # Select and initialize the model
 if classification_type == "rfc":
@@ -231,6 +237,9 @@ Model: {classification_type.upper()}
 - Low CV score variance ({np.std(cv_scores):.4f}) indicates robust performance across data splits.
 - MSE and R² reflect prediction consistency, though more relevant for regression tasks.
 - Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.
+
+6. ROC CURVE:
+
 """
 
 print(report)
@@ -240,7 +249,7 @@ with open(f'{classification_type}_performance_report.txt', 'w') as f:
     f.write(report)
 
 # Visualizations
-plt.figure(figsize=(15, 10))
+plt.figure(figsize=(15, 10))  # Increased figure size to accommodate subplots and labels
 
 # 1. Confusion Matrix Heatmap
 plt.subplot(2, 2, 1)
@@ -250,8 +259,8 @@ sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
 plt.title(f'Confusion Matrix - {classification_type.upper()}')
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
-plt.xticks(rotation=45)
-plt.yticks(rotation=0)
+plt.xticks(rotation=45, ha='right', fontsize=10)  # Adjusted rotation and alignment for better readability
+plt.yticks(rotation=0, fontsize=10)
 
 # 2. Cross-validation scores comparison
 plt.subplot(2, 2, 2)
@@ -270,16 +279,17 @@ if hasattr(best_model.named_steps['classifier'], 'feature_importances_'):
     plt.title(f'Top 10 Feature Importances - {classification_type.upper()}')
     plt.xlabel('Features')
     plt.ylabel('Importance')
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=45, ha='right', fontsize=10)
 
-plt.tight_layout()
-plt.savefig(f'{classification_type}_performance_visualizations.png')
-plt.close()
+plt.tight_layout()  # Adjust layout to prevent overlap
+plt.savefig(f'{classification_type}_performance_visualizations.png', bbox_inches='tight')  # Ensure all elements are included in the saved figure
+plt.close()  # Close the figure to free memory
 
 # ADDITIONAL: Visualizations
 print(f"Generating visualizations for {classification_type.upper()} model...")
 
-plt.figure(figsize=(8, 6))
+# 1. Distribution of Obesity Levels
+plt.figure(figsize=(13, 11))
 sns.countplot(x='NObeyesdad', data=train_data)
 plt.title('Distribution of Obesity Levels')
 plt.xlabel('Obesity Level')
@@ -288,10 +298,11 @@ plt.xticks(ticks=range(len(label_encoder.classes_)), labels=label_encoder.classe
 plt.savefig('target_distribution.png')
 plt.close()
 
+# 2. Distribution of Numerical Features
 plt.figure(figsize=(20, 15))
 for i, feature in enumerate(numerical_features, 1):
     plt.subplot(3, 3, i)
-    sns.histplot(train_data[feature], kde=True)
+    sns.histplot(train_data[feature], kde=True)  # Fixed typo: 'figure' to 'feature'
     plt.title(f'Distribution of {feature}')
 plt.tight_layout()
 plt.savefig('feature_distributions.png')
@@ -307,14 +318,28 @@ plt.tight_layout()
 plt.savefig('feature_boxplots.png')
 plt.close()
 
-plt.figure(figsize=(15, 10))
+plt.figure(figsize=(20, 16))
 for i, feature in enumerate(categorical_features, 1):
     plt.subplot(3, 3, i)
-    sns.countplot(x=feature, hue='NObeyesdad', data=train_data)
+    sns.countplot(x=feature, hue='NObeyesdad_decoded', data=train_data)
     plt.title(f'{feature} by Obesity Level')
-plt.legend(title='Obesity Level', labels=label_encoder.classes_) 
+    plt.legend(title='Obesity Level')
 plt.tight_layout()
 plt.savefig('categorical_feature_target.png')
+plt.close()
+
+gender_obesity_counts = train_data.groupby(['Gender', 'NObeyesdad_decoded']).size().unstack()
+
+# Plotting
+plt.figure(figsize=(10, 6))
+gender_obesity_counts.plot(kind='bar', stacked=True, color=sns.color_palette('Set2'))
+plt.title('Obesity Levels by Gender')
+plt.xlabel('Gender')
+plt.ylabel('Number of Individuals')
+plt.xticks(rotation=0)
+plt.legend(title='Obesity Level', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.savefig('obesity_gender.png')
 plt.close()
 
 plt.figure(figsize=(12, 6))
@@ -323,7 +348,8 @@ for i, feature in enumerate(numerical_features, 1):
     sns.boxplot(x=train_data[feature])
     plt.title(f'Boxplot Outliers of {feature}')
 plt.tight_layout()
-plt.show()
+plt.savefig('boxplotoutliers.png')
+plt.close()
 
 plt.figure(figsize=(10, 6))
 sns.scatterplot(x='Weight', y='Height', hue='NObeyesdad', data=train_data)
@@ -340,36 +366,89 @@ plt.title('Correlation Heatmap of Numerical Features')
 plt.savefig('correlation_heatmap.png')
 plt.close()
 
-plt.figure(figsize=(15, 10))
-plt.subplot(2, 2, 1)
-sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
-            xticklabels=label_encoder.classes_,
-            yticklabels=label_encoder.classes_)
-plt.title(f'Confusion Matrix - {classification_type.upper()}')
-plt.xlabel('Predicted')
-plt.ylabel('Actual')
-plt.xticks(rotation=45)
-plt.yticks(rotation=0)
+# 9. Actual vs. Predicted Scatter Plot (Corrected)
+plt.figure(figsize=(10, 6))
+# Prepare data for plotting
+plot_data = X_test.copy()
 
-plt.subplot(2, 2, 2)
-plt.plot(range(1, 6), baseline_cv_scores, label='Baseline', marker='o')
-plt.plot(range(1, 6), cv_scores, label='Tuned', marker='o')
-plt.title(f'Cross-Validation Scores: Baseline vs Tuned - {classification_type.upper()}')
-plt.xlabel('Fold')
-plt.ylabel('Accuracy')
-plt.legend()
+# Transform encoded labels back to strings with error handling
+def safe_inverse_transform(encoded_labels, encoder, placeholder="Unknown"):
+    encoded_labels = np.array(encoded_labels, dtype=int)
+    transformed = np.array([placeholder] * len(encoded_labels), dtype=object)
+    valid_mask = (encoded_labels >= 0) & (encoded_labels < len(encoder.classes_))
+    if not np.all(valid_mask):
+        raise ValueError(f"Invalid labels found: {encoded_labels[~valid_mask]}")
+    transformed[valid_mask] = encoder.inverse_transform(encoded_labels[valid_mask])
+    return transformed
 
-if hasattr(best_model.named_steps['classifier'], 'feature_importances_'):
-    plt.subplot(2, 2, 3)
-    feature_imp = pd.Series(importances, index=feature_names).sort_values(ascending=False)[:10]
-    feature_imp.plot(kind='bar')
-    plt.title(f'Top 10 Feature Importances - {classification_type.upper()}')
-    plt.xlabel('Features')
-    plt.ylabel('Importance')
-    plt.xticks(rotation=45)
+# Ensure y_test and y_pred are 1D arrays of integers
+y_test_flat = y_test.values.ravel().astype(int)
+y_pred_flat = y_pred.ravel().astype(int)
 
+plot_data['Actual'] = safe_inverse_transform(y_test_flat, label_encoder)
+plot_data['Predicted'] = safe_inverse_transform(y_pred_flat, label_encoder)
+
+# Ensure all values are strings and treat them as categorical
+plot_data['Actual'] = pd.Categorical(plot_data['Actual'].astype(str), categories=label_encoder.classes_)
+plot_data['Predicted'] = pd.Categorical(plot_data['Predicted'].astype(str), categories=label_encoder.classes_)
+
+plot_data['Correct'] = plot_data['Actual'] == plot_data['Predicted']  # Add correctness column
+
+# Split data into correct and incorrect predictions
+correct_data = plot_data[plot_data['Correct']]
+incorrect_data = plot_data[~plot_data['Correct']]
+
+# Calculate percentages
+total_samples = len(plot_data)
+correct_percentage = (len(correct_data) / total_samples * 100) if total_samples > 0 else 0
+incorrect_percentage = (len(incorrect_data) / total_samples * 100) if total_samples > 0 else 0
+
+# Plot correct predictions with full opacity
+if not correct_data.empty:
+    sns.scatterplot(
+        data=correct_data,
+        x='Weight',
+        y='Height',
+        hue='Actual',
+        style='Predicted',
+        alpha=1.0,
+        sizes=(40, 40),
+        palette='Set2',  # Use a distinct color palette
+        markers=['o', '^', 's', 'D', 'v', 'p', '*'],  # Custom shapes
+        legend='full'
+    )
+
+# Plot incorrect predictions with lower opacity
+if not incorrect_data.empty:
+    sns.scatterplot(
+        data=incorrect_data,
+        x='Weight',
+        y='Height',
+        hue='Actual',
+        style='Predicted',
+        alpha=0.3,
+        sizes=(40, 40),
+        palette='Set2',
+        markers=['o', '^', 's', 'D', 'v', 'p', '*'],
+        legend=False  # Avoid duplicate legend
+    )
+
+# Add percentages to the plot
+plt.text(
+    0.05, 0.95,  # Position in axes coordinates (top-left corner)
+    f'Correct: {correct_percentage:.1f}%\nIncorrect: {incorrect_percentage:.1f}%',
+    transform=plt.gca().transAxes,  # Use axes coordinates
+    fontsize=12,
+    verticalalignment='top',
+    bbox=dict(boxstyle='round', facecolor='white', alpha=0.8, edgecolor='black')
+)
+
+plt.title(f'Actual vs Predicted Obesity Levels - {classification_type.upper()} Model')
+plt.xlabel('Weight (kg)')
+plt.ylabel('Height (m)')
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Obesity Level')
 plt.tight_layout()
-plt.savefig(f'{classification_type}_performance_visualizations.png')
+plt.savefig(f'actual_vs_predicted_scatter_{classification_type.upper()}_Model.png')
 plt.close()
 
 # SHAP Summary Plot (for tree-based models)
@@ -387,36 +466,180 @@ if classification_type in ['rfc', 'lightgbm', 'xgboost', 'catboost', 'extratrees
 y_test_bin = label_binarize(y_test, classes=range(len(label_encoder.classes_)))
 y_prob = best_model.predict_proba(X_test)
 plt.figure(figsize=(10, 6))
+roc_auc_scores = {}  # Dictionary to store AUC scores for each class
+
 for i in range(len(label_encoder.classes_)):
     fpr, tpr, _ = roc_curve(y_test_bin[:, i], y_prob[:, i])
     roc_auc = auc(fpr, tpr)
+    roc_auc_scores[label_encoder.classes_[i]] = roc_auc  # Store the AUC score
     plt.plot(fpr, tpr, label=f'{label_encoder.classes_[i]} (AUC = {roc_auc:.2f})')
-plt.plot([0, 1], [0, 1], 'k--')
+
+# Plot the diagonal line (random classifier)
+plt.plot([0, 1], [0, 1], 'k--', label='Random Classifier (AUC = 0.50)')
+
+# Customize the plot
 plt.title(f'ROC Curve (One-vs-Rest) - {classification_type.upper()}')
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Class (AUC)')
+plt.tight_layout()
 plt.savefig(f'{classification_type}_roc_curve.png')
 plt.close()
 
-# Precision-Recall Curve
+# Print AUC scores to the console
+print("\nROC AUC Scores (One-vs-Rest):")
+for class_name, auc_score in roc_auc_scores.items():
+    print(f"{class_name}: {auc_score:.2f}")
+
+# Append AUC scores to the performance report file
+with open(f'{classification_type}_performance_report_ROC.txt', 'a') as f:
+    f.write("\n\nROC AUC Scores (One-vs-Rest):\n")
+    for class_name, auc_score in roc_auc_scores.items():
+        f.write(f"{class_name}: {auc_score:.2f}\n")
+
+# Precision-Recall Curve with APS in the legend
 plt.figure(figsize=(10, 6))
 for i in range(len(label_encoder.classes_)):
+    # Calculate precision, recall, and APS for the current class
     precision, recall, _ = precision_recall_curve(y_test_bin[:, i], y_prob[:, i])
-    plt.plot(recall, precision, label=f'{label_encoder.classes_[i]}')
+    aps = average_precision_score(y_test_bin[:, i], y_prob[:, i])
+    # Plot the curve with the APS in the label
+    plt.plot(recall, precision, label=f'{label_encoder.classes_[i]} (APS: {aps:.2f})')
+
+# Add a no-skill line (prevalence of the positive class) for reference
+for i in range(len(label_encoder.classes_)):
+    prevalence = y_test_bin[:, i].mean()
+    plt.axhline(y=prevalence, linestyle='--', color='gray', alpha=0.3)
+
+# Customize the plot
 plt.title(f'Precision-Recall Curve - {classification_type.upper()}')
 plt.xlabel('Recall')
 plt.ylabel('Precision')
-plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
 plt.savefig(f'{classification_type}_precision_recall_curve.png')
 plt.close()
+
+# Misclassification Analysis Report
+print("Generating Misclassification Analysis Report...")
+
+# Prepare data for misclassification analysis
+plot_data = X_test.copy()
+y_test_flat = y_test.values.ravel().astype(int)
+y_pred_flat = y_pred.ravel().astype(int)
+
+# Transform encoded labels back to strings
+plot_data['Actual'] = safe_inverse_transform(y_test_flat, label_encoder)
+plot_data['Predicted'] = safe_inverse_transform(y_pred_flat, label_encoder)
+
+# Ensure all values are strings and treat them as categorical
+plot_data['Actual'] = pd.Categorical(plot_data['Actual'].astype(str), categories=label_encoder.classes_)
+plot_data['Predicted'] = pd.Categorical(plot_data['Predicted'].astype(str), categories=label_encoder.classes_)
+
+plot_data['Correct'] = plot_data['Actual'] == plot_data['Predicted']
+incorrect_data = plot_data[~plot_data['Correct']]
+
+# 1. Heatmap of Misclassified Samples (Actual vs. Predicted NObeyesdad Classes)
+plt.figure(figsize=(10, 8))
+if not incorrect_data.empty:
+    # Create a cross-tabulation of actual vs. predicted classes for misclassified samples
+    misclassification_matrix = pd.crosstab(
+        incorrect_data['Actual'], 
+        incorrect_data['Predicted'], 
+        rownames=['Actual'], 
+        colnames=['Predicted']
+    )
+    # Ensure all classes are included, even if they have no misclassifications
+    for class_name in label_encoder.classes_:
+        if class_name not in misclassification_matrix.index:
+            misclassification_matrix.loc[class_name] = 0
+        if class_name not in misclassification_matrix.columns:
+            misclassification_matrix[class_name] = 0
+    # Reorder the matrix to match the label_encoder.classes_ order
+    misclassification_matrix = misclassification_matrix.reindex(
+        index=label_encoder.classes_, 
+        columns=label_encoder.classes_, 
+        fill_value=0
+    )
+    # Plot the heatmap
+    sns.heatmap(
+        misclassification_matrix, 
+        annot=True, 
+        fmt='d', 
+        cmap='Reds', 
+        cbar_kws={'label': 'Number of Misclassifications'},
+        xticklabels=label_encoder.classes_,
+        yticklabels=label_encoder.classes_
+    )
+    plt.title(f'Misclassification Heatmap (Actual vs. Predicted) - {classification_type.upper()}')
+    plt.xlabel('Predicted NObeyesdad')
+    plt.ylabel('Actual NObeyesdad')
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(f'{classification_type}_misclassification_heatmap.png')
+    plt.close()
+else:
+    print("No misclassified samples to plot.")
+
+# 2. Error Rate per Class
+error_rates = incorrect_data.groupby('Actual').size() / plot_data.groupby('Actual').size()
+error_rates = error_rates.fillna(0)  # Replace NaN with 0 for classes with no errors
+plt.figure(figsize=(10, 6))
+error_rates.plot(kind='bar', color='salmon')
+plt.title(f'Error Rate per Class - {classification_type.upper()}')
+plt.xlabel('Actual Class')
+plt.ylabel('Error Rate')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.savefig(f'{classification_type}_error_rate_per_class.png')
+plt.close()
+
+# 3. Text Summary of Misclassification Analysis
+misclassification_summary = f"\n8. Misclassification Analysis:\n"
+misclassification_summary += f"- Total Misclassified Samples: {len(incorrect_data)}\n"
+misclassification_summary += f"- Overall Misclassification Rate: {len(incorrect_data) / len(plot_data):.4f}\n"
+misclassification_summary += f"- Refer to the Confusion Matrix (in '{classification_type}_performance_visualizations.png') for a detailed breakdown of true positives, false positives, false negatives, and true negatives.\n"
+misclassification_summary += f"- Refer to the Misclassification Heatmap ('{classification_type}_misclassification_heatmap.png') for a focused view of actual vs. predicted NObeyesdad classes for misclassified samples.\n"
+misclassification_summary += f"- Refer to the Actual vs. Predicted Scatter Plot ('actual_vs_predicted_scatter_{classification_type.upper()}_Model.png') to see misclassified samples in the Weight vs. Height feature space.\n"
+
+# Misclassifications per class
+misclassification_summary += "\nMisclassifications per Class:\n"
+for class_name in label_encoder.classes_:
+    misclassified_count = len(incorrect_data[incorrect_data['Actual'] == class_name])
+    total_count = len(plot_data[plot_data['Actual'] == class_name])
+    misclassification_rate = misclassified_count / total_count if total_count > 0 else 0
+    misclassification_summary += f"- {class_name}: {misclassified_count} misclassified out of {total_count} (Rate: {misclassification_rate:.4f})\n"
+
+# Common misclassifications from the confusion matrix
+common_misclassifications = incorrect_data.groupby(['Actual', 'Predicted']).size().sort_values(ascending=False)
+if not common_misclassifications.empty:
+    misclassification_summary += "\nCommon Misclassifications:\n"
+    for (actual, predicted), count in common_misclassifications.items():
+        misclassification_summary += f"- {actual} misclassified as {predicted}: {count} times\n"
+else:
+    misclassification_summary += "\nNo misclassifications to analyze.\n"
+
+# Potential reasons for misclassifications
+misclassification_summary += "\nPotential Reasons for Misclassifications:\n"
+misclassification_summary += "- Class Imbalance: Classes with fewer samples may have higher error rates due to underrepresentation.\n"
+misclassification_summary += "- Feature Overlap: Classes with similar feature distributions (e.g., Overweight_Level_I and Overweight_Level_II) may be harder to distinguish.\n"
+misclassification_summary += "- Model Limitations: The model may struggle with boundary cases where features like Weight and Height are close to decision thresholds.\n"
+
+# Append to the performance report
+with open(f'{classification_type}_performance_report.txt', 'a') as f:
+    f.write(misclassification_summary)
+
+print("Misclassification Analysis Report added to the performance report.")
 
 print(f"Visualizations saved with prefix '{classification_type}_' (e.g., '{classification_type}_performance_visualizations.png')")
 
 # Train the best model on the entire dataset
 best_model.fit(X, y)
 
-# Use X_test for predictions (part of train_data)
+# Use X_test for predictions 
 test_predictions = best_model.predict(X_test)
 
 # Create a DataFrame with IDs and predictions

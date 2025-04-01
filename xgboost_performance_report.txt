@@ -1,6 +1,6 @@
 
 Model Performance Report
-Generated on: 2025-03-15 18:38:22
+Generated on: 2025-04-01 15:08:37
 Model: XGBOOST
 
 1. Hyperparameter Tuning Results:
@@ -58,3 +58,78 @@ Overweight_Level_II       0.99      0.96      0.97        77
 - Low CV score variance (0.0635) indicates robust performance across data splits.
 - MSE and R² reflect prediction consistency, though more relevant for regression tasks.
 - Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.
+
+6. ROC CURVE:
+
+
+8. Misclassification Analysis:
+- Total Misclassified Samples: 12
+- Overall Misclassification Rate: 0.0194
+- Refer to the Confusion Matrix (in 'xgboost_performance_visualizations.png') for a detailed breakdown of true positives, false positives, false negatives, and true negatives.
+- Refer to the Misclassification Heatmap ('xgboost_misclassification_heatmap.png') for a focused view of actual vs. predicted NObeyesdad classes for misclassified samples.
+- Refer to the Actual vs. Predicted Scatter Plot ('actual_vs_predicted_scatter_XGBOOST_Model.png') to see misclassified samples in the Weight vs. Height feature space.
+
+Misclassifications per Class:
+- Insufficient_Weight: 1 misclassified out of 81 (Rate: 0.0123)
+- Normal_Weight: 2 misclassified out of 93 (Rate: 0.0215)
+- Obesity_Type_I: 1 misclassified out of 99 (Rate: 0.0101)
+- Obesity_Type_II: 2 misclassified out of 95 (Rate: 0.0211)
+- Obesity_Type_III: 0 misclassified out of 101 (Rate: 0.0000)
+- Overweight_Level_I: 3 misclassified out of 73 (Rate: 0.0411)
+- Overweight_Level_II: 3 misclassified out of 77 (Rate: 0.0390)
+
+Common Misclassifications:
+- Overweight_Level_II misclassified as Overweight_Level_I: 2 times
+- Obesity_Type_II misclassified as Obesity_Type_I: 2 times
+- Overweight_Level_I misclassified as Normal_Weight: 2 times
+- Obesity_Type_I misclassified as Obesity_Type_II: 1 times
+- Insufficient_Weight misclassified as Normal_Weight: 1 times
+- Overweight_Level_II misclassified as Normal_Weight: 1 times
+- Normal_Weight misclassified as Insufficient_Weight: 1 times
+- Overweight_Level_I misclassified as Overweight_Level_II: 1 times
+- Normal_Weight misclassified as Overweight_Level_I: 1 times
+- Insufficient_Weight misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_III misclassified as Normal_Weight: 0 times
+- Obesity_Type_III misclassified as Obesity_Type_I: 0 times
+- Obesity_Type_III misclassified as Obesity_Type_II: 0 times
+- Obesity_Type_III misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_III misclassified as Overweight_Level_I: 0 times
+- Obesity_Type_III misclassified as Overweight_Level_II: 0 times
+- Overweight_Level_I misclassified as Obesity_Type_II: 0 times
+- Overweight_Level_I misclassified as Insufficient_Weight: 0 times
+- Overweight_Level_I misclassified as Obesity_Type_I: 0 times
+- Obesity_Type_II misclassified as Overweight_Level_II: 0 times
+- Overweight_Level_I misclassified as Obesity_Type_III: 0 times
+- Overweight_Level_I misclassified as Overweight_Level_I: 0 times
+- Overweight_Level_II misclassified as Insufficient_Weight: 0 times
+- Overweight_Level_II misclassified as Obesity_Type_I: 0 times
+- Overweight_Level_II misclassified as Obesity_Type_II: 0 times
+- Overweight_Level_II misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_III misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_II misclassified as Obesity_Type_II: 0 times
+- Obesity_Type_II misclassified as Overweight_Level_I: 0 times
+- Normal_Weight misclassified as Obesity_Type_III: 0 times
+- Insufficient_Weight misclassified as Obesity_Type_I: 0 times
+- Insufficient_Weight misclassified as Obesity_Type_II: 0 times
+- Insufficient_Weight misclassified as Obesity_Type_III: 0 times
+- Insufficient_Weight misclassified as Overweight_Level_I: 0 times
+- Insufficient_Weight misclassified as Overweight_Level_II: 0 times
+- Normal_Weight misclassified as Normal_Weight: 0 times
+- Normal_Weight misclassified as Obesity_Type_I: 0 times
+- Normal_Weight misclassified as Obesity_Type_II: 0 times
+- Normal_Weight misclassified as Overweight_Level_II: 0 times
+- Obesity_Type_II misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_I misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_I misclassified as Normal_Weight: 0 times
+- Obesity_Type_I misclassified as Obesity_Type_I: 0 times
+- Obesity_Type_I misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_I misclassified as Overweight_Level_I: 0 times
+- Obesity_Type_I misclassified as Overweight_Level_II: 0 times
+- Obesity_Type_II misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_II misclassified as Normal_Weight: 0 times
+- Overweight_Level_II misclassified as Overweight_Level_II: 0 times
+
+Potential Reasons for Misclassifications:
+- Class Imbalance: Classes with fewer samples may have higher error rates due to underrepresentation.
+- Feature Overlap: Classes with similar feature distributions (e.g., Overweight_Level_I and Overweight_Level_II) may be harder to distinguish.
+- Model Limitations: The model may struggle with boundary cases where features like Weight and Height are close to decision thresholds.
