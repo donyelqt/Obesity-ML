@@ -1,0 +1,136 @@
+
+Model Performance Report
+Generated on: 2025-04-01 16:04:28
+Model: CATBOOST
+
+1. Hyperparameter Tuning Results:
+- Baseline Accuracy (Default Parameters): 0.9661
+- Tuned Accuracy: 0.9758
+- Improvement: 0.0097
+- Baseline CV Mean Score: 0.9583 (± 0.0567)
+- Tuned CV Mean Score: 0.9579 (± 0.0649)
+- Best Parameters: classifier__learning_rate: 0.1, classifier__l2_leaf_reg: 1, classifier__iterations: 400, classifier__depth: 8, classifier__border_count: 64, classifier__bagging_temperature: 0
+- Tuning Process: RandomizedSearchCV with 50 iterations and 3-fold CV was used to explore a wide parameter space efficiently. 
+  The optimal settings balance model complexity and generalization, with parameters like learning rate and depth tuned to prevent overfitting.
+
+2. Evaluation Metrics:
+- Accuracy: 0.9758
+- Mean Squared Error: 0.1599
+- R² Score: 0.9566
+- Cross-validation Scores: [0.82808717 0.98789346 0.99031477 0.99271845 0.99029126]
+- Mean CV Score: 0.9579 (± 0.0649)
+
+3. Classification Report:
+                     precision    recall  f1-score   support
+
+Insufficient_Weight       0.98      0.99      0.98        81
+      Normal_Weight       0.94      0.98      0.96        93
+     Obesity_Type_I       0.99      0.99      0.99        99
+    Obesity_Type_II       0.99      0.98      0.98        95
+   Obesity_Type_III       0.99      1.00      1.00       101
+ Overweight_Level_I       0.95      0.95      0.95        73
+Overweight_Level_II       1.00      0.94      0.97        77
+
+           accuracy                           0.98       619
+          macro avg       0.98      0.97      0.97       619
+       weighted avg       0.98      0.98      0.98       619
+
+
+4. Model Behavior Analysis:
+- Confusion Matrix Insights:
+- Insufficient_Weight: 2 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Normal_Weight: 6 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_I: 1 false positives, 1 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_II: 1 false positives, 2 false negatives, indicating potential overlap with similar classes.
+- Obesity_Type_III: 1 false positives, 0 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_I: 4 false positives, 4 false negatives, indicating potential overlap with similar classes.
+- Overweight_Level_II: 0 false positives, 5 false negatives, indicating potential overlap with similar classes.
+
+- Top 5 Important Features:
+- Weight: 42.2816 (likely critical for obesity classification)
+- Height: 14.1519 (likely critical for obesity classification)
+- Age: 7.0975 (likely critical for obesity classification)
+- Gender_Male: 5.7240 (likely critical for obesity classification)
+- NCP: 3.6870 (likely critical for obesity classification)
+- General Behavior: CATBOOST handles categorical features natively, potentially improving performance over one-hot encoded models
+
+5. Interpretations:
+- Accuracy improvement suggests tuning enhanced generalization.
+- Low CV score variance (0.0649) indicates robust performance across data splits.
+- MSE and R² reflect prediction consistency, though more relevant for regression tasks.
+- Confusion matrix patterns and feature importance (if applicable) highlight key decision factors in obesity classification.
+
+6. ROC CURVE:
+
+
+8. Misclassification Analysis:
+- Total Misclassified Samples: 15
+- Overall Misclassification Rate: 0.0242
+- Refer to the Confusion Matrix (in 'catboost_performance_visualizations.png') for a detailed breakdown of true positives, false positives, false negatives, and true negatives.
+- Refer to the Misclassification Heatmap ('catboost_misclassification_heatmap.png') for a focused view of actual vs. predicted NObeyesdad classes for misclassified samples.
+- Refer to the Actual vs. Predicted Scatter Plot ('actual_vs_predicted_scatter_CATBOOST_Model.png') to see misclassified samples in the Weight vs. Height feature space.
+
+Misclassifications per Class:
+- Insufficient_Weight: 1 misclassified out of 81 (Rate: 0.0123)
+- Normal_Weight: 2 misclassified out of 93 (Rate: 0.0215)
+- Obesity_Type_I: 1 misclassified out of 99 (Rate: 0.0101)
+- Obesity_Type_II: 2 misclassified out of 95 (Rate: 0.0211)
+- Obesity_Type_III: 0 misclassified out of 101 (Rate: 0.0000)
+- Overweight_Level_I: 4 misclassified out of 73 (Rate: 0.0548)
+- Overweight_Level_II: 5 misclassified out of 77 (Rate: 0.0649)
+
+Common Misclassifications:
+- Overweight_Level_II misclassified as Overweight_Level_I: 4 times
+- Overweight_Level_I misclassified as Normal_Weight: 4 times
+- Normal_Weight misclassified as Insufficient_Weight: 2 times
+- Obesity_Type_II misclassified as Obesity_Type_III: 1 times
+- Insufficient_Weight misclassified as Normal_Weight: 1 times
+- Obesity_Type_II misclassified as Obesity_Type_I: 1 times
+- Overweight_Level_II misclassified as Normal_Weight: 1 times
+- Obesity_Type_I misclassified as Obesity_Type_II: 1 times
+- Insufficient_Weight misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_III misclassified as Overweight_Level_II: 0 times
+- Obesity_Type_III misclassified as Normal_Weight: 0 times
+- Obesity_Type_III misclassified as Obesity_Type_I: 0 times
+- Obesity_Type_III misclassified as Obesity_Type_II: 0 times
+- Obesity_Type_III misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_III misclassified as Overweight_Level_I: 0 times
+- Overweight_Level_I misclassified as Obesity_Type_I: 0 times
+- Overweight_Level_I misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_II misclassified as Overweight_Level_II: 0 times
+- Overweight_Level_I misclassified as Obesity_Type_II: 0 times
+- Overweight_Level_I misclassified as Obesity_Type_III: 0 times
+- Overweight_Level_I misclassified as Overweight_Level_I: 0 times
+- Overweight_Level_I misclassified as Overweight_Level_II: 0 times
+- Overweight_Level_II misclassified as Insufficient_Weight: 0 times
+- Overweight_Level_II misclassified as Obesity_Type_I: 0 times
+- Overweight_Level_II misclassified as Obesity_Type_II: 0 times
+- Overweight_Level_II misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_III misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_II misclassified as Obesity_Type_II: 0 times
+- Obesity_Type_II misclassified as Overweight_Level_I: 0 times
+- Normal_Weight misclassified as Obesity_Type_III: 0 times
+- Insufficient_Weight misclassified as Obesity_Type_I: 0 times
+- Insufficient_Weight misclassified as Obesity_Type_II: 0 times
+- Insufficient_Weight misclassified as Obesity_Type_III: 0 times
+- Insufficient_Weight misclassified as Overweight_Level_I: 0 times
+- Insufficient_Weight misclassified as Overweight_Level_II: 0 times
+- Normal_Weight misclassified as Normal_Weight: 0 times
+- Normal_Weight misclassified as Obesity_Type_I: 0 times
+- Normal_Weight misclassified as Obesity_Type_II: 0 times
+- Normal_Weight misclassified as Overweight_Level_I: 0 times
+- Obesity_Type_II misclassified as Normal_Weight: 0 times
+- Normal_Weight misclassified as Overweight_Level_II: 0 times
+- Obesity_Type_I misclassified as Insufficient_Weight: 0 times
+- Obesity_Type_I misclassified as Normal_Weight: 0 times
+- Obesity_Type_I misclassified as Obesity_Type_I: 0 times
+- Obesity_Type_I misclassified as Obesity_Type_III: 0 times
+- Obesity_Type_I misclassified as Overweight_Level_I: 0 times
+- Obesity_Type_I misclassified as Overweight_Level_II: 0 times
+- Obesity_Type_II misclassified as Insufficient_Weight: 0 times
+- Overweight_Level_II misclassified as Overweight_Level_II: 0 times
+
+Potential Reasons for Misclassifications:
+- Class Imbalance: Classes with fewer samples may have higher error rates due to underrepresentation.
+- Feature Overlap: Classes with similar feature distributions (e.g., Overweight_Level_I and Overweight_Level_II) may be harder to distinguish.
+- Model Limitations: The model may struggle with boundary cases where features like Weight and Height are close to decision thresholds.
