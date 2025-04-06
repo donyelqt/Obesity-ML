@@ -87,25 +87,6 @@ if classification_type == "rfc":
         'classifier__max_depth': [3, 5, 7, None],
         'classifier__min_samples_split': [2, 5, 10]
     }
-elif classification_type == "svc":
-    model = SVC(random_state=42)
-    param_grid = {
-        'classifier__C': [0.1, 1, 10],
-        'classifier__kernel': ['linear', 'rbf']
-    }
-elif classification_type == "kneighbors":
-    model = KNeighborsClassifier()
-    param_grid = {
-        'classifier__n_neighbors': [3, 5, 7],
-        'classifier__weights': ['uniform', 'distance']
-    }
-elif classification_type == "logistic":
-    model = LogisticRegression(random_state=42, max_iter=1000)
-    param_grid = {
-        'classifier__C': [0.1, 1, 10],
-        'classifier__penalty': ['l1', 'l2'],
-        'classifier__solver': ['liblinear']
-    }
 elif classification_type == "lightgbm":
     model = LGBMClassifier(random_state=42, verbose=-1)
     param_grid = {
