@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_val_score
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, mean_squared_error, r2_score
 from lightgbm import LGBMClassifier
 from xgboost import XGBClassifier
@@ -130,7 +127,7 @@ elif classification_type == "extratrees":
         'classifier__max_features': ['sqrt', 'log2', None]
     }
 else:
-    raise ValueError("Invalid classification type. Choose from 'rfc', 'svc', 'kneighbors', 'logistic', 'lightgbm', 'xgboost', 'catboost', 'extratrees'.")
+    raise ValueError("Invalid classification type. Choose from 'rfc', 'lightgbm', 'xgboost', 'catboost', 'extratrees'.")
 
 # Define the pipeline
 pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', model)])
