@@ -74,7 +74,7 @@ preprocessor = ColumnTransformer(transformers=[
 ])
 
 # Choose classification type
-classification_type = "catboost"
+classification_type = "catboost" # choose 1 models to initialize: rfc, lightgbm, xgboost, catboost, extratrees.
 
 # Select and initialize the model
 if classification_type == "rfc":
